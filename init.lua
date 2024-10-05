@@ -1,14 +1,12 @@
-dofile(minetest.get_modpath("player_api") .. "/api.lua")
-
 print("this file will be run at load time!")
-
+dofile(minetest.get_modpath(minetest.get_current_modname()) .. "/ponyeditor.lua")
 
 
 -- Default player appearance
 player_api.register_model("ponybase.obj", {
     animation_speed = 30,
     visual_size = { x = 1, y = 1 },
-    textures = { "base_zombie.png" }, 
+    textures = { "base_zombie.png" },
     animations = {
         -- Standard animations.
         stand     = { x = 79, y = 0, rotation = { x = 0, y = -90, z = 0 } },
@@ -45,8 +43,5 @@ player_api.register_model("ponybase.obj", {
 
 -- Update appearance when the player joins
 minetest.register_on_joinplayer(function(player)
-    player_api.set_model(player, "ponybase.obj") 
-    
+    player_api.set_model(player, "ponybase.obj")
 end)
-
-player_api.globalstep()
