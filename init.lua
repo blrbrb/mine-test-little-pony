@@ -1,15 +1,20 @@
 print("this file will be run at load time!")
-dofile(minetest.get_modpath(minetest.get_current_modname()) .. "/ponyeditor.lua")
-
+--dofile(minetest.get_modpath(minetest.get_current_modname()) .. "/ponyeditor.lua")
+--dofile(minetest.get_modpath(minetest.get_current_modname()) .. "/ponytest.lua")
 
 -- Default player appearance
-player_api.register_model("ponybase.obj", {
+-- -- animations on model 0-36 idle
+-- 37-56 walk 
+
+
+
+player_api.register_model("ponybase.b3d", {
     animation_speed = 30,
-    visual_size = { x = 1, y = 1 },
-    textures = { "base_zombie.png" },
+    visual_size = { x = 8, y = 8 },
+    textures = { "minelp_skin_base_1.png" },
     animations = {
         -- Standard animations.
-        stand     = { x = 79, y = 0, rotation = { x = 0, y = -90, z = 0 } },
+        stand     = { x = 0, y = 36 },
         lay       = {
             x = 162,
             y = 166,
@@ -18,7 +23,7 @@ player_api.register_model("ponybase.obj", {
             collisionbox = { -0.6, 0.0, -0.6, 0.6, 0.3, 0.6 },
             rotation = { x = 0, y = -90, z = 0 }
         },
-        walk      = { x = 168, y = 187, rotation = { x = 0, y = -90, z = 0 } },
+        walk      = { x = 37, y = 56, rotation = { x = 0, y = -90, z = 0 } },
         mine      = { x = 189, y = 198, rotation = { x = 0, y = -90, z = 0 } },
         walk_mine = { x = 200, y = 219, rotation = { x = 0, y = -90, z = 0 } },
         sit       = {
@@ -43,5 +48,5 @@ player_api.register_model("ponybase.obj", {
 
 -- Update appearance when the player joins
 minetest.register_on_joinplayer(function(player)
-    player_api.set_model(player, "ponybase.obj")
+    player_api.set_model(player, "ponybase.b3d")
 end)
