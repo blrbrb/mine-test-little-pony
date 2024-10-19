@@ -4,27 +4,25 @@ local S = minetest.get_translator("minelp_skin")
 local color_to_string = minetest.colorspec_to_colorstring
 
 minelp_skin = {
-    item_names = { "base", "footwear", "eye", "snout", "bottom", "top", "mane", "headwear" },
-    tab_names = { "template", "base", "headwear", "mane", "eye", "snout", "top", "bottom", "footwear" },
+    item_names = { "base", "eye", "bottom", "top", "mane", "ear","tail" },
+    tab_names = { "template", "base", "mane", "eye", "ear", "tail" },
     tab_descriptions = {
         template = S("Templates"),
         base = S("Bases"),
-        footwear = S("Footwears"),
         eye = S("Eyes"),
-        snout = S("Snouts"),
-        ears = S("Ears"),
-        bottom = S("Bottoms"),
+        ear = S("Ears"),
         mane = S("Manes"),
-        top = S("Tops"),
-
-        headwear = S("Headwears")
+        tail = S("Tails")
     },
     steve = {}, -- Stores skin values for Steve skin
-    alex = {},  -- Stores skin values for Alex skin
+    alex = {},  -- Stores skin values for Alex skin 
+    twi = {}, 
+    rd = {}, 
+    fs = {},
     base = {},  -- List of base textures
 
     -- Base color is separate to keep the number of junk nodes registered in check
-    base_color = { 0xffeeb592, 0xffb47a57, 0xff8d471d },
+    base_color = { 0xffeeb592, 0xffb47a57, 0xff8d471d,0xffc21c1c,0xffd0672a,0xffc21c1c,0xffae2ad3,0xffebe8e4,0xff449acc,0xff124d87,0xffc0eb3,0xffe3dd26 },
     color = {
         0xff613915, -- 1 Dark brown Steve hair, Alex bottom
         0xff97491b, -- 2 Medium brown
@@ -42,15 +40,12 @@ minelp_skin = {
         0xfffc0eb3, -- 14 Pink
         0xffd0672a, -- 15 Orange Alex hair
     },
-    footwear = {},
-    snout = {},
     eye = {},
-    bottom = {},
-    top = {},
     mane = {},
     ears = {},
     headwear = {},
     masks = {},
+    tail = {},
     preview_rotations = {},
     ranks = {},
     player_skins = {},
@@ -75,7 +70,7 @@ function minelp_skin.register_item(item)
     if item.alex then
         minelp_skin.alex[item.type] = texture
     end
-
+  
     if item.restricted_to_admin then
         minelp_skin.restricted_to_admin[texture] = true
     end
@@ -275,6 +270,7 @@ function minelp_skin.show_formspec(player)
             ",blank.png,blank.png;0,180;false;true;0,0]" ..
 
             "button[7.5,5.2;2,0.8;alex;" .. S("Select") .. "]"
+        
     else
         formspec = formspec ..
             "style_type[button,image_button;border=false;bgcolor=#00000000]"
@@ -295,15 +291,17 @@ function minelp_skin.show_formspec(player)
             end
             preview = preview .. "^" .. texture
 
-            local mesh = "minelp_skin_head.obj"
-            if active_tab == "top" then
-                mesh = "minelp_skin_jacket.obj"
-            elseif active_tab == "bottom" or active_tab == "footwear" then
-                mesh = "minelp_skin_pants.obj"
+            local mesh = "ponybase.b3d"
+            if active_tab == "footwear" then
+                mesh = "ponybase.b3d" -- TD export object meshes for individual preview_rotations 
+              elseif active_tab == "mane" then 
+                mesh = "ponybase_hat.obj" -- hair preview_rotations 
+            elseif active_tab == "eye" then 
+                mesh = "ponybase_head.obj" -- face preview_rotations 
             end
 
-            local rot_x = -10
-            local rot_y = 20
+            local rot_x = -180
+            local rot_y = 20 
             if minelp_skin.preview_rotations[texture] then
                 rot_x = minelp_skin.preview_rotations[texture].x
                 rot_y = minelp_skin.preview_rotations[texture].y
@@ -331,7 +329,7 @@ function minelp_skin.show_formspec(player)
 
     if skin[active_tab .. "_color"] then
         local colors = minelp_skin.color
-        if active_tab == "base" then colors = minelp_skin.base_color end
+        if active_tab == "base"  or active_tab == "mane" then colors = minelp_skin.base_color end
 
         local tab_color = active_tab .. "_color"
         local selected_color = skin[tab_color]
@@ -451,6 +449,16 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
         minelp_skin.update_player_skin(player)
         minelp_skin.show_formspec(player)
         return true
+    elseif fields.twi then
+        minelp_skin.player_skins[player] = table.copy(minelp_skin.twi)
+        minelp_skin.update_player_skin(player)
+        minelp_skin.show_formspec(player)
+        return true
+    elseif fields.rd then
+        minelp_skin.player_skins[player] = table.copy(minelp_skin.rd)
+        minelp_skin.update_player_skin(player)
+        minelp_skin.show_formspec(player)
+        return true
     end
 
     for i, tab in pairs(minelp_skin.tab_names) do
@@ -560,7 +568,7 @@ local function init()
     for _, item in pairs(json) do
         minelp_skin.register_item(item)
     end
-    minelp_skin.steve.base_color = minelp_skin.base_color[1]
+    --minelp_skin.steve.base_color = minelp_skin.base_color[1]
     minelp_skin.steve.hair_color = minelp_skin.color[1]
     minelp_skin.steve.top_color = minelp_skin.color[12]
     minelp_skin.steve.bottom_color = minelp_skin.color[13]
@@ -591,7 +599,6 @@ local function init()
                 groups = { not_in_creative_inventory = 1 },
                 tiles = { make_texture(base, base_color) },
                 use_texture_alpha = "clip",
-                mesh = "minelp_skin_hand.obj",
                 range = range,
             })
         end

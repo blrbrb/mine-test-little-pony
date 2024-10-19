@@ -1,20 +1,32 @@
 print("this file will be run at load time!")
---dofile(minetest.get_modpath(minetest.get_current_modname()) .. "/ponyeditor.lua")
+dofile(minetest.get_modpath(minetest.get_current_modname()) .. "/ponyeditor.lua")
 --dofile(minetest.get_modpath(minetest.get_current_modname()) .. "/ponytest.lua")
 
 -- Default player appearance
 -- -- animations on model 0-36 idle
 -- 37-56 walk 
 
+minetest.register_chatcommand("minelp_mesh_dbg", {
+    description = "Print information about the current pony model mesh into the chat .",
+    privs = {},
+    func = function(name, param) showMeshInfo(minetest.get_player_by_name(name)) end 
+})
+
+function showMeshInfo(player)
+local mesh = player:get_properties().mesh or ""
+minetest.chat_send_player("singleplayer", mesh) 
+end 
+-- print mesh information for debuggery 
+
 
 
 player_api.register_model("ponybase.b3d", {
     animation_speed = 30,
-    visual_size = { x = 8, y = 8 },
+    visual_size = { x = 1, y = 1 },
     textures = { "minelp_skin_base_1.png" },
     animations = {
         -- Standard animations.
-        stand     = { x = 0, y = 36 },
+        stand     = { x = 1, y = 21 },
         lay       = {
             x = 162,
             y = 166,
@@ -23,8 +35,8 @@ player_api.register_model("ponybase.b3d", {
             collisionbox = { -0.6, 0.0, -0.6, 0.6, 0.3, 0.6 },
             rotation = { x = 0, y = -90, z = 0 }
         },
-        walk      = { x = 37, y = 56, rotation = { x = 0, y = -90, z = 0 } },
-        mine      = { x = 189, y = 198, rotation = { x = 0, y = -90, z = 0 } },
+        walk      = { x = 21, y = 41 },
+        mine      = { x = 41, y = 60 },
         walk_mine = { x = 200, y = 219, rotation = { x = 0, y = -90, z = 0 } },
         sit       = {
             x = 81,
