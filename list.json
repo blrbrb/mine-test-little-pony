@@ -16,12 +16,12 @@
   {
     "type": "mane",
     "texture": "minelp_mane_base.png",
-    "mask": "blank.png"
+    "mask": "minelp_mane_base_mask.png"
   },
   {
     "type": "mane",
     "texture": "minelp_mane_base_3.png",
-    "mask": "blank.png"
+    "mask": "minelp_mane_base_mask_3.png"
   },
   {
     "type": "mane",
@@ -29,10 +29,15 @@
     "mask": "blank.png"
   },
   {
+    "type": "tail",
+    "texture": "minelp_skin_tail_11.png",
+    "mask": "minelp_skin_tail_mask_1.png"
+  },
+  {
     "type": "base",
-    "texture": "minelp_skin_base_1.png",
-    "mask": "minelp_skin_mask.png",
-    "steve": true,
-    "alex": true
+    "texture": "minelp_skin_base_11.png",
+    "base": "minelp_skin_base_mask.png",
+    "mask": "minelp_skin_base_mask.png",
+    "pony_earth": true
   }
 ]

@@ -14,31 +14,32 @@ minelp_skin = {
         mane = S("Manes"),
         tail = S("Tails")
     },
-    steve = {}, -- Stores skin values for Steve skin
-    alex = {},  -- Stores skin values for Alex skin 
-    twi = {}, 
-    rd = {}, 
-    fs = {},
+    pony_earth = {}, -- Stores def skin values for earth pony race
+    pony_unicorn = {},  -- Stores def skin values for unicorn race 
+    pony_pegasus = {}, -- Stores def skin values for pegasus race
+    twi = {}, -- Default character 1 
+    rd = {}, -- Default character 2 
+    fs = {}, -- Default character 3 
     base = {},  -- List of base textures
 
     -- Base color is separate to keep the number of junk nodes registered in check
     base_color = { 0xffeeb592, 0xffb47a57, 0xff8d471d,0xffc21c1c,0xffd0672a,0xffc21c1c,0xffae2ad3,0xffebe8e4,0xff449acc,0xff124d87,0xffc0eb3,0xffe3dd26 },
     color = {
-        0xff613915, -- 1 Dark brown Steve hair, Alex bottom
+        0xff613915, -- 1 Dark brown 
         0xff97491b, -- 2 Medium brown
         0xffb17050, -- 3 Light brown
         0xffe2bc7b, -- 4 Beige
         0xff706662, -- 5 Gray
         0xff151515, -- 6 Black
         0xffc21c1c, -- 7 Red
-        0xff178c32, -- 8 Green Alex top
+        0xff178c32, -- 8 Green 
         0xffae2ad3, -- 9 Plum
         0xffebe8e4, -- 10 White
         0xffe3dd26, -- 11 Yellow
         0xff449acc, -- 12 Light blue Steve top
         0xff124d87, -- 13 Dark blue Steve bottom
         0xfffc0eb3, -- 14 Pink
-        0xffd0672a, -- 15 Orange Alex hair
+        0xffd0672a, -- 15 Orange 
     },
     eye = {},
     mane = {},
@@ -46,6 +47,8 @@ minelp_skin = {
     headwear = {},
     masks = {},
     tail = {},
+    wing = {},
+    horn ={},
     preview_rotations = {},
     ranks = {},
     player_skins = {},
@@ -63,12 +66,12 @@ minetest.register_privilege("minelp_skin_admin", {
 function minelp_skin.register_item(item)
     assert(minelp_skin[item.type], "Skin item type " .. item.type .. " does not exist.")
     local texture = item.texture or "blank.png"
-    if item.steve then
-        minelp_skin.steve[item.type] = texture
+    if item.pony_earth then
+        minelp_skin.pony_earth[item.type] = texture
     end
 
-    if item.alex then
-        minelp_skin.alex[item.type] = texture
+    if item.pony_unicorn then
+        minelp_skin.pony_unicorn[item.type] = texture
     end
   
     if item.restricted_to_admin then
@@ -173,9 +176,9 @@ minetest.register_on_joinplayer(function(player)
         minelp_skin.player_skins[player] = skin
     else
         if math.random() > 0.5 then
-            skin = table.copy(minelp_skin.steve)
+            skin = table.copy(minelp_skin.pony_earth)
         else
-            skin = table.copy(minelp_skin.alex)
+            skin = table.copy(minelp_skin.pony_unicorn)
         end
         minelp_skin.player_skins[player] = skin
         minelp_skin.save(player)
@@ -236,6 +239,7 @@ function minelp_skin.show_formspec(player)
     local page_num = formspec_data.page_num
     local skin = minelp_skin.player_skins[player]
     local formspec = "formspec_version[3]size[14.2,11]"
+    
     for i, tab in pairs(minelp_skin.tab_names) do
         if tab == active_tab then
             formspec = formspec ..
@@ -252,6 +256,7 @@ function minelp_skin.show_formspec(player)
     local mesh = player:get_properties().mesh or ""
     local textures = player_api.get_textures(player)
     textures[2] = "blank.png" -- Clear out the armor
+
     formspec = formspec ..
         "model[11,0.3;3,7;player_mesh;" .. mesh .. ";" ..
         table.concat(textures, ",") ..
@@ -260,16 +265,16 @@ function minelp_skin.show_formspec(player)
     if active_tab == "template" then
         formspec = formspec ..
             "model[5,2;2,3;player_mesh;" .. mesh .. ";" ..
-            minelp_skin.compile_skin(minelp_skin.steve) ..
+            minelp_skin.compile_skin(minelp_skin.pony_earth) ..
             ",blank.png,blank.png;0,180;false;true;0,0]" ..
 
-            "button[5,5.2;2,0.8;steve;" .. S("Select") .. "]" ..
+            "button[5,5.2;2,0.8;pony_earth;" .. S("Earth Pony") .. "]" ..
 
             "model[7.5,2;2,3;player_mesh;" .. mesh .. ";" ..
-            minelp_skin.compile_skin(minelp_skin.alex) ..
+            minelp_skin.compile_skin(minelp_skin.pony_unicorn) ..
             ",blank.png,blank.png;0,180;false;true;0,0]" ..
 
-            "button[7.5,5.2;2,0.8;alex;" .. S("Select") .. "]"
+            "button[7.5,5.2;2,0.8;pony_unicorn;" .. S("Unicorn") .. "]"
         
     else
         formspec = formspec ..
@@ -329,7 +334,7 @@ function minelp_skin.show_formspec(player)
 
     if skin[active_tab .. "_color"] then
         local colors = minelp_skin.color
-        if active_tab == "base"  or active_tab == "mane" then colors = minelp_skin.base_color end
+        if active_tab == "base" then colors = minelp_skin.base_color end
 
         local tab_color = active_tab .. "_color"
         local selected_color = skin[tab_color]
@@ -439,13 +444,13 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
         return true
     end
 
-    if fields.alex then
-        minelp_skin.player_skins[player] = table.copy(minelp_skin.alex)
+    if fields.pony_unicorn then
+        minelp_skin.player_skins[player] = table.copy(minelp_skin.pony_unicorn)
         minelp_skin.update_player_skin(player)
         minelp_skin.show_formspec(player)
         return true
-    elseif fields.steve then
-        minelp_skin.player_skins[player] = table.copy(minelp_skin.steve)
+    elseif fields.pony_earth then
+        minelp_skin.player_skins[player] = table.copy(minelp_skin.pony_earth)
         minelp_skin.update_player_skin(player)
         minelp_skin.show_formspec(player)
         return true
@@ -568,15 +573,18 @@ local function init()
     for _, item in pairs(json) do
         minelp_skin.register_item(item)
     end
-    --minelp_skin.steve.base_color = minelp_skin.base_color[1]
-    minelp_skin.steve.hair_color = minelp_skin.color[1]
-    minelp_skin.steve.top_color = minelp_skin.color[12]
-    minelp_skin.steve.bottom_color = minelp_skin.color[13]
+    --minelp_skin.pony_earth.base_color = minelp_skin.base_color[1]
+    minelp_skin.pony_earth.mane_color = minelp_skin.color[1]
+    minelp_skin.pony_earth.tail_color = minelp_skin.color[1]
+    minelp_skin.pony_earth.base_color = minelp_skin.color[12]
+    minelp_skin.pony_earth.bottom_color = minelp_skin.color[13]
 
-    minelp_skin.alex.base_color = minelp_skin.base_color[1]
-    minelp_skin.alex.hair_color = minelp_skin.color[15]
-    minelp_skin.alex.top_color = minelp_skin.color[8]
-    minelp_skin.alex.bottom_color = minelp_skin.color[1]
+    -- formspec uses regular expression logic that checks for the presence of "_color" when deciding wether or not show a color seletion 
+    -- colorspec on the tab. These must be named properly 
+    minelp_skin.pony_unicorn.base_color = minelp_skin.base_color[1]
+    minelp_skin.pony_unicorn.mane_color = minelp_skin.color[15]
+    minelp_skin.pony_unicorn.top_color = minelp_skin.color[8]
+    minelp_skin.pony_unicorn.bottom_color = minelp_skin.color[1]
 
     -- Register junk first person hand nodes
     local function make_texture(base, colorspec)
