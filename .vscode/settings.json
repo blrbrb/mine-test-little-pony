@@ -1,0 +1,9 @@
+{
+    "Lua.diagnostics.globals": [
+        "player_api"
+    ],
+    "Lua.workspace.library": [
+        "${addons}/minetest/module/library"
+    ],
+    "Lua.workspace.checkThirdParty": false
+}

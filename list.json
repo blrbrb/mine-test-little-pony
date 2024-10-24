@@ -35,9 +35,16 @@
   },
   {
     "type": "base",
-    "texture": "minelp_skin_base_11.png",
+    "texture": "minelp_skin_base_1.png",
     "base": "minelp_skin_base_mask.png",
     "mask": "minelp_skin_base_mask.png",
     "pony_earth": true
+  },
+  {
+    "type": "base",
+    "texture": "minelp_skin_base_1.png",
+    "base": "minelp_skin_base_mask.png",
+    "mask": "minelp_skin_base_mask.png",
+    "pony_unicorn": true
   }
 ]

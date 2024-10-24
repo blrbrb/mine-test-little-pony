@@ -8,7 +8,7 @@ minelp_skin = {
     tab_names = { "template", "base", "mane", "eye", "ear", "tail" },
     tab_descriptions = {
         template = S("Templates"),
-        base = S("Bases"),
+        base = S("Character Bases"),
         eye = S("Eyes"),
         ear = S("Ears"),
         mane = S("Manes"),
@@ -72,8 +72,12 @@ function minelp_skin.register_item(item)
 
     if item.pony_unicorn then
         minelp_skin.pony_unicorn[item.type] = texture
-    end
-  
+    end 
+
+    if item.pony_pegasus then 
+        minelp_skin.pony_pegasus[item.type] = texture 
+    end 
+
     if item.restricted_to_admin then
         minelp_skin.restricted_to_admin[texture] = true
     end
@@ -139,8 +143,10 @@ end
 
 function minelp_skin.update_player_skin(player)
     local output = minelp_skin.compile_skin(minelp_skin.player_skins[player])
-
-    player_api.set_texture(player, 1, output)
+    minetest.debug(player)
+  
+     player_api.set_texture(player, 1, output)
+  
 
     -- Set player first person hand node
     local base = minelp_skin.player_skins[player].base
@@ -303,6 +309,8 @@ function minelp_skin.show_formspec(player)
                 mesh = "ponybase_hat.obj" -- hair preview_rotations 
             elseif active_tab == "eye" then 
                 mesh = "ponybase_head.obj" -- face preview_rotations 
+            elseif active_tab == "tails" then 
+                
             end
 
             local rot_x = -180
@@ -562,7 +570,7 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 end)
 
 local function init()
-    local f = io.open(minetest.get_modpath(minetest.get_current_modname()) .. "/list.json")
+    local f = io.open(minetest.get_modpath("minelp") .. "/list.json")
     assert(f, "Can't open the file list.json")
     local data = f:read("*all")
     assert(data, "Can't read data from list.json")
@@ -574,10 +582,12 @@ local function init()
         minelp_skin.register_item(item)
     end
     --minelp_skin.pony_earth.base_color = minelp_skin.base_color[1]
-    minelp_skin.pony_earth.mane_color = minelp_skin.color[1]
-    minelp_skin.pony_earth.tail_color = minelp_skin.color[1]
+    minelp_skin.pony_earth.mane_color = minelp_skin.color[1] 
+    minelp_skin.pony_earth.mane_color2 = minelp_skin.color[2]
+    minelp_skin.pony_earth.tail_color = minelp_skin.color[1] 
     minelp_skin.pony_earth.base_color = minelp_skin.color[12]
-    minelp_skin.pony_earth.bottom_color = minelp_skin.color[13]
+    minelp_skin.pony_earth.bottom_color = minelp_skin.color[13] 
+    
 
     -- formspec uses regular expression logic that checks for the presence of "_color" when deciding wether or not show a color seletion 
     -- colorspec on the tab. These must be named properly 
