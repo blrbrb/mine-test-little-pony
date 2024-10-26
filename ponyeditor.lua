@@ -1,9 +1,10 @@
 -- Edit Skin Mod
 
+
 local S = minetest.get_translator("minelp_skin")
 local color_to_string = minetest.colorspec_to_colorstring
 
-minelp_skin = {
+minelp.skin = {
     item_names = { "base", "eye", "bottom", "top", "mane", "ear","tail" },
     tab_names = { "template", "base", "mane", "eye", "ear", "tail" },
     tab_descriptions = {
@@ -63,45 +64,45 @@ minetest.register_privilege("minelp_skin_admin", {
     give_to_admin = true,
 })
 
-function minelp_skin.register_item(item)
-    assert(minelp_skin[item.type], "Skin item type " .. item.type .. " does not exist.")
+function minelp.skin.register_item(item)
+    assert(minelp.skin[item.type], "Skin item type " .. item.type .. " does not exist.")
     local texture = item.texture or "blank.png"
     if item.pony_earth then
-        minelp_skin.pony_earth[item.type] = texture
+        minelp.skin.pony_earth[item.type] = texture
     end
 
     if item.pony_unicorn then
-        minelp_skin.pony_unicorn[item.type] = texture
+        minelp.skin.pony_unicorn[item.type] = texture
     end 
 
     if item.pony_pegasus then 
-        minelp_skin.pony_pegasus[item.type] = texture 
+        minelp.skin.pony_pegasus[item.type] = texture 
     end 
 
     if item.restricted_to_admin then
-        minelp_skin.restricted_to_admin[texture] = true
+        minelp.skin.restricted_to_admin[texture] = true
     end
 
     if item.for_player then
-        minelp_skin.restricted_to_player[texture] = {}
+        minelp.skin.restricted_to_player[texture] = {}
         if type(item.for_player) == "string" then
-            minelp_skin.restricted_to_player[texture][item.for_player] = true
+            minelp.skin.restricted_to_player[texture][item.for_player] = true
         else
             for i, name in pairs(item.for_player) do
-                minelp_skin.restricted_to_player[texture][name] = true
+                minelp.skin.restricted_to_player[texture][name] = true
             end
         end
     end
 
-    table.insert(minelp_skin[item.type], texture)
-    minelp_skin.masks[texture] = item.mask
-    minelp_skin.preview_rotations[texture] = item.preview_rotation
-    minelp_skin.ranks[texture] = item.rank
+    table.insert(minelp.skin[item.type], texture)
+    minelp.skin.masks[texture] = item.mask
+    minelp.skin.preview_rotations[texture] = item.preview_rotation
+    minelp.skin.ranks[texture] = item.rank
 end
 
-function minelp_skin.save(player)
+function minelp.skin.save(player)
     if not player:is_player() then return end
-    local skin = minelp_skin.player_skins[player]
+    local skin = minelp.skin.player_skins[player]
     if not skin then return end
     player:get_meta():set_string("minelp:skin", minetest.serialize(skin))
 end
@@ -109,22 +110,22 @@ end
 minetest.register_chatcommand("skin", {
     description = S("Open skin configuration screen."),
     privs = {},
-    func = function(name, param) minelp_skin.show_formspec(minetest.get_player_by_name(name)) end
+    func = function(name, param) minelp.skin.show_formspec(minetest.get_player_by_name(name)) end
 })
 
-function minelp_skin.compile_skin(skin)
+function minelp.skin.compile_skin(skin)
     if not skin then return "blank.png" end
 
     local ranks = {}
     local layers = {}
-    for i, item in ipairs(minelp_skin.item_names) do
+    for i, item in ipairs(minelp.skin.item_names) do
         local texture = skin[item]
         local layer = ""
-        local rank = minelp_skin.ranks[texture] or i * 10
+        local rank = minelp.skin.ranks[texture] or i * 10
         if texture and texture ~= "blank.png" then
-            if skin[item .. "_color"] and minelp_skin.masks[texture] then
+            if skin[item .. "_color"] and minelp.skin.masks[texture] then
                 local color = color_to_string(skin[item .. "_color"])
-                layer = "(" .. minelp_skin.masks[texture] .. "^[colorize:" .. color .. ":alpha)"
+                layer = "(" .. minelp.skin.masks[texture] .. "^[colorize:" .. color .. ":alpha)"
             end
             if #layer > 0 then layer = layer .. "^" end
             layer = layer .. texture
@@ -141,21 +142,21 @@ function minelp_skin.compile_skin(skin)
     return output
 end
 
-function minelp_skin.update_player_skin(player)
-    local output = minelp_skin.compile_skin(minelp_skin.player_skins[player])
+function minelp.skin.update_player_skin(player)
+    local output = minelp.skin.compile_skin(minelp.skin.player_skins[player])
     minetest.debug(player)
   
      player_api.set_texture(player, 1, output)
   
 
     -- Set player first person hand node
-    local base = minelp_skin.player_skins[player].base
-    local base_color = minelp_skin.player_skins[player].base_color
+    local base = minelp.skin.player_skins[player].base
+    local base_color = minelp.skin.player_skins[player].base_color
     local node_id = base:gsub(".png$", "") .. color_to_string(base_color):gsub("#", "")
     player:get_inventory():set_stack("hand", 1, "minelp:" .. node_id)
 
-    for i = 1, #minelp_skin.registered_on_set_skins do
-        minelp_skin.registered_on_set_skins[i](player)
+    for i = 1, #minelp.skin.registered_on_set_skins do
+        minelp.skin.registered_on_set_skins[i](player)
     end
 
     local name = player:get_player_name()
@@ -179,18 +180,18 @@ minetest.register_on_joinplayer(function(player)
         skin = minetest.deserialize(skin)
     end
     if skin then
-        minelp_skin.player_skins[player] = skin
+        minelp.skin.player_skins[player] = skin
     else
         if math.random() > 0.5 then
-            skin = table.copy(minelp_skin.pony_earth)
+            skin = table.copy(minelp.skin.pony_earth)
         else
-            skin = table.copy(minelp_skin.pony_unicorn)
+            skin = table.copy(minelp.skin.pony_unicorn)
         end
-        minelp_skin.player_skins[player] = skin
-        minelp_skin.save(player)
+        minelp.skin.player_skins[player] = skin
+        minelp.skin.save(player)
     end
 
-    minelp_skin.player_formspecs[player] = {
+    minelp.skin.player_formspecs[player] = {
         active_tab = "template",
         page_num = 1,
         has_admin_priv = minetest.check_player_privs(player, "minelp_skin_admin"),
@@ -198,7 +199,7 @@ minetest.register_on_joinplayer(function(player)
 
     player:get_inventory():set_size("hand", 1)
 
-    minelp_skin.update_player_skin(player)
+    minelp.skin.update_player_skin(player)
 
     if minetest.global_exists("inventory_plus") and inventory_plus.register_button then
         inventory_plus.register_button(player, "minelp_skin", S("Edit Skin"))
@@ -208,7 +209,7 @@ minetest.register_on_joinplayer(function(player)
     if minetest.global_exists("armor") then
         minetest.after(0.01, function()
             if player:is_player() then
-                minelp_skin.update_player_skin(player)
+                minelp.skin.update_player_skin(player)
             end
         end)
     end
@@ -216,8 +217,8 @@ end)
 
 minetest.register_on_leaveplayer(function(player)
     player:get_inventory():set_size("hand", 0)
-    minelp_skin.player_skins[player] = nil
-    minelp_skin.player_formspecs[player] = nil
+    minelp.skin.player_skins[player] = nil
+    minelp.skin.player_formspecs[player] = nil
 end)
 
 minetest.register_on_shutdown(function()
@@ -226,27 +227,27 @@ minetest.register_on_shutdown(function()
     end
 end)
 
-minelp_skin.registered_on_set_skins = {}
+minelp.skin.registered_on_set_skins = {}
 
-function minelp_skin.register_on_set_skin(func)
-    table.insert(minelp_skin.registered_on_set_skins, func)
+function minelp.skin.register_on_set_skin(func)
+    table.insert(minelp.skin.registered_on_set_skins, func)
 end
 
-function minelp_skin.show_formspec(player)
-    local formspec_data = minelp_skin.player_formspecs[player]
+function minelp.skin.show_formspec(player)
+    local formspec_data = minelp.skin.player_formspecs[player]
     local has_admin_priv = minetest.check_player_privs(player, "minelp_skin_admin")
     if has_admin_priv ~= formspec_data.has_admin_priv then
         formspec_data.has_admin_priv = has_admin_priv
-        for i, name in pairs(minelp_skin.item_names) do
+        for i, name in pairs(minelp.skin.item_names) do
             formspec_data[name] = nil
         end
     end
     local active_tab = formspec_data.active_tab
     local page_num = formspec_data.page_num
-    local skin = minelp_skin.player_skins[player]
+    local skin = minelp.skin.player_skins[player]
     local formspec = "formspec_version[3]size[14.2,11]"
     
-    for i, tab in pairs(minelp_skin.tab_names) do
+    for i, tab in pairs(minelp.skin.tab_names) do
         if tab == active_tab then
             formspec = formspec ..
                 "style[" .. tab .. ";bgcolor=green]"
@@ -255,7 +256,7 @@ function minelp_skin.show_formspec(player)
         local y = 0.3 + (i - 1) * 0.8
         formspec = formspec ..
             "style[" .. tab .. ";content_offset=16,0]" ..
-            "button[0.3," .. y .. ";4,0.8;" .. tab .. ";" .. minelp_skin.tab_descriptions[tab] .. "]" ..
+            "button[0.3," .. y .. ";4,0.8;" .. tab .. ";" .. minelp.skin.tab_descriptions[tab] .. "]" ..
             "image[0.4," .. y + 0.1 .. ";0.6,0.6;minelp_skin_icons.png^[verticalframe:9:" .. i - 1 .. "]"
     end
 
@@ -271,13 +272,13 @@ function minelp_skin.show_formspec(player)
     if active_tab == "template" then
         formspec = formspec ..
             "model[5,2;2,3;player_mesh;" .. mesh .. ";" ..
-            minelp_skin.compile_skin(minelp_skin.pony_earth) ..
+            minelp.skin.compile_skin(minelp.skin.pony_earth) ..
             ",blank.png,blank.png;0,180;false;true;0,0]" ..
 
             "button[5,5.2;2,0.8;pony_earth;" .. S("Earth Pony") .. "]" ..
 
             "model[7.5,2;2,3;player_mesh;" .. mesh .. ";" ..
-            minelp_skin.compile_skin(minelp_skin.pony_unicorn) ..
+            minelp.skin.compile_skin(minelp.skin.pony_unicorn) ..
             ",blank.png,blank.png;0,180;false;true;0,0]" ..
 
             "button[7.5,5.2;2,0.8;pony_unicorn;" .. S("Unicorn") .. "]"
@@ -286,7 +287,7 @@ function minelp_skin.show_formspec(player)
         formspec = formspec ..
             "style_type[button,image_button;border=false;bgcolor=#00000000]"
 
-        if not formspec_data[active_tab] then minelp_skin.filter_active_tab(player) end
+        if not formspec_data[active_tab] then minelp.skin.filter_active_tab(player) end
         local textures = formspec_data[active_tab]
         local page_start = (page_num - 1) * 16 + 1
         local page_end = math.min(page_start + 16 - 1, #textures)
@@ -294,9 +295,9 @@ function minelp_skin.show_formspec(player)
         for j = page_start, page_end do
             local i = j - page_start + 1
             local texture = textures[j]
-            local preview = minelp_skin.masks[skin.base] .. "^[colorize:gray^" .. skin.base
+            local preview = minelp.skin.masks[skin.base] .. "^[colorize:gray^" .. skin.base
             local color = color_to_string(skin[active_tab .. "_color"])
-            local mask = minelp_skin.masks[texture]
+            local mask = minelp.skin.masks[texture]
             if color and mask then
                 preview = preview .. "^(" .. mask .. "^[colorize:" .. color .. ":alpha)"
             end
@@ -315,9 +316,9 @@ function minelp_skin.show_formspec(player)
 
             local rot_x = -180
             local rot_y = 20 
-            if minelp_skin.preview_rotations[texture] then
-                rot_x = minelp_skin.preview_rotations[texture].x
-                rot_y = minelp_skin.preview_rotations[texture].y
+            if minelp.skin.preview_rotations[texture] then
+                rot_x = minelp.skin.preview_rotations[texture].x
+                rot_y = minelp.skin.preview_rotations[texture].y
             end
 
             i = i - 1
@@ -341,8 +342,8 @@ function minelp_skin.show_formspec(player)
     end
 
     if skin[active_tab .. "_color"] then
-        local colors = minelp_skin.color
-        if active_tab == "base" then colors = minelp_skin.base_color end
+        local colors = minelp.skin.color
+        if active_tab == "base" then colors = minelp.skin.base_color end
 
         local tab_color = active_tab .. "_color"
         local selected_color = skin[tab_color]
@@ -393,7 +394,7 @@ function minelp_skin.show_formspec(player)
     end
 
     local page_count = 1
-    if minelp_skin[active_tab] then
+    if minelp.skin[active_tab] then
         page_count = math.ceil(#formspec_data[active_tab] / 16)
     end
 
@@ -415,16 +416,16 @@ function minelp_skin.show_formspec(player)
     minetest.show_formspec(player:get_player_name(), "minelp:minelp_skin", formspec)
 end
 
-function minelp_skin.filter_active_tab(player)
-    local formspec_data = minelp_skin.player_formspecs[player]
+function minelp.skin.filter_active_tab(player)
+    local formspec_data = minelp.skin.player_formspecs[player]
     local active_tab = formspec_data.active_tab
     local admin_priv = formspec_data.has_admin_priv
     local name = player:get_player_name()
     formspec_data[active_tab] = {}
     local textures = formspec_data[active_tab]
-    for i, texture in pairs(minelp_skin[active_tab]) do
-        if admin_priv or not minelp_skin.restricted_to_admin[texture] then
-            local restriction = minelp_skin.restricted_to_player[texture]
+    for i, texture in pairs(minelp.skin[active_tab]) do
+        if admin_priv or not minelp.skin.restricted_to_admin[texture] then
+            local restriction = minelp.skin.restricted_to_player[texture]
             if restriction then
                 if restriction[name] then
                     table.insert(textures, texture)
@@ -439,7 +440,7 @@ end
 minetest.register_on_player_receive_fields(function(player, formname, fields)
     if formname ~= "minelp:minelp_skin" then return false end
 
-    local formspec_data = minelp_skin.player_formspecs[player]
+    local formspec_data = minelp.skin.player_formspecs[player]
     local active_tab = formspec_data.active_tab
 
     -- Cancel formspec resend after scrollbar move
@@ -448,42 +449,42 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
     end
 
     if fields.quit then
-        minelp_skin.save(player)
+        minelp.skin.save(player)
         return true
     end
 
     if fields.pony_unicorn then
-        minelp_skin.player_skins[player] = table.copy(minelp_skin.pony_unicorn)
-        minelp_skin.update_player_skin(player)
-        minelp_skin.show_formspec(player)
+        minelp.skin.player_skins[player] = table.copy(minelp.skin.pony_unicorn)
+        minelp.skin.update_player_skin(player)
+        minelp.skin.show_formspec(player)
         return true
     elseif fields.pony_earth then
-        minelp_skin.player_skins[player] = table.copy(minelp_skin.pony_earth)
-        minelp_skin.update_player_skin(player)
-        minelp_skin.show_formspec(player)
+        minelp.skin.player_skins[player] = table.copy(minelp.skin.pony_earth)
+        minelp.skin.update_player_skin(player)
+        minelp.skin.show_formspec(player)
         return true
     elseif fields.twi then
-        minelp_skin.player_skins[player] = table.copy(minelp_skin.twi)
-        minelp_skin.update_player_skin(player)
-        minelp_skin.show_formspec(player)
+        minelp.skin.player_skins[player] = table.copy(minelp.skin.twi)
+        minelp.skin.update_player_skin(player)
+        minelp.skin.show_formspec(player)
         return true
     elseif fields.rd then
-        minelp_skin.player_skins[player] = table.copy(minelp_skin.rd)
-        minelp_skin.update_player_skin(player)
-        minelp_skin.show_formspec(player)
+        minelp.skin.player_skins[player] = table.copy(minelp.skin.rd)
+        minelp.skin.update_player_skin(player)
+        minelp.skin.show_formspec(player)
         return true
     end
 
-    for i, tab in pairs(minelp_skin.tab_names) do
+    for i, tab in pairs(minelp.skin.tab_names) do
         if fields[tab] then
             formspec_data.active_tab = tab
             formspec_data.page_num = 1
-            minelp_skin.show_formspec(player)
+            minelp.skin.show_formspec(player)
             return true
         end
     end
 
-    local skin = minelp_skin.player_skins[player]
+    local skin = minelp.skin.player_skins[player]
     if not skin then return true end
 
     if fields.next_page then
@@ -494,14 +495,14 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
             page_num = page_count
         end
         formspec_data.page_num = page_num
-        minelp_skin.show_formspec(player)
+        minelp.skin.show_formspec(player)
         return true
     elseif fields.previous_page then
         local page_num = formspec_data.page_num
         page_num = page_num - 1
         if page_num < 1 then page_num = 1 end
         formspec_data.page_num = page_num
-        minelp_skin.show_formspec(player)
+        minelp.skin.show_formspec(player)
         return true
     end
 
@@ -525,8 +526,8 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
             formspec_data.form_send_job = minetest.after(0.2, function()
                 if player and player:is_player() then
                     skin[active_tab .. "_color"] = color
-                    minelp_skin.update_player_skin(player)
-                    minelp_skin.show_formspec(player)
+                    minelp.skin.update_player_skin(player)
+                    minelp.skin.show_formspec(player)
                     formspec_data.form_send_job = nil
                 end
             end)
@@ -543,12 +544,12 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
     end
 
     -- See if field is a texture
-    if field and minelp_skin[active_tab] then
+    if field and minelp.skin[active_tab] then
         for i, texture in pairs(formspec_data[active_tab]) do
             if texture == field then
                 skin[active_tab] = texture
-                minelp_skin.update_player_skin(player)
-                minelp_skin.show_formspec(player)
+                minelp.skin.update_player_skin(player)
+                minelp.skin.show_formspec(player)
                 return true
             end
         end
@@ -560,8 +561,8 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
         local color = math.floor(number)
         if color and color >= 0 and color <= 0xffffffff then
             skin[active_tab .. "_color"] = color
-            minelp_skin.update_player_skin(player)
-            minelp_skin.show_formspec(player)
+            minelp.skin.update_player_skin(player)
+            minelp.skin.show_formspec(player)
             return true
         end
     end
@@ -579,28 +580,28 @@ local function init()
     f:close()
 
     for _, item in pairs(json) do
-        minelp_skin.register_item(item)
+        minelp.skin.register_item(item)
     end
     --minelp_skin.pony_earth.base_color = minelp_skin.base_color[1]
-    minelp_skin.pony_earth.mane_color = minelp_skin.color[1] 
-    minelp_skin.pony_earth.mane_color2 = minelp_skin.color[2]
-    minelp_skin.pony_earth.tail_color = minelp_skin.color[1] 
-    minelp_skin.pony_earth.base_color = minelp_skin.color[12]
-    minelp_skin.pony_earth.bottom_color = minelp_skin.color[13] 
+    minelp.skin.pony_earth.mane_color = minelp.skin.color[1] 
+    minelp.skin.pony_earth.mane_color2 = minelp.skin.color[2]
+    minelp.skin.pony_earth.tail_color = minelp.skin.color[1] 
+    minelp.skin.pony_earth.base_color = minelp.skin.color[12]
+    minelp.skin.pony_earth.bottom_color = minelp.skin.color[13] 
     
 
     -- formspec uses regular expression logic that checks for the presence of "_color" when deciding wether or not show a color seletion 
     -- colorspec on the tab. These must be named properly 
-    minelp_skin.pony_unicorn.base_color = minelp_skin.base_color[1]
-    minelp_skin.pony_unicorn.mane_color = minelp_skin.color[15]
-    minelp_skin.pony_unicorn.top_color = minelp_skin.color[8]
-    minelp_skin.pony_unicorn.bottom_color = minelp_skin.color[1]
+    minelp.skin.pony_unicorn.base_color = minelp.skin.base_color[1]
+    minelp.skin.pony_unicorn.mane_color = minelp.skin.color[15]
+    minelp.skin.pony_unicorn.top_color = minelp.skin.color[8]
+    minelp.skin.pony_unicorn.bottom_color = minelp.skin.color[1]
 
     -- Register junk first person hand nodes
     local function make_texture(base, colorspec)
         local output = ""
-        if minelp_skin.masks[base] then
-            output = minelp_skin.masks[base] ..
+        if minelp.skin.masks[base] then
+            output = minelp.skin.masks[base] ..
                 "^[colorize:" .. color_to_string(colorspec) .. ":alpha"
         end
         if #output > 0 then output = output .. "^" end
@@ -609,8 +610,8 @@ local function init()
     end
     local hand_def = minetest.registered_items[""]
     local range = hand_def and hand_def.range
-    for _, base in pairs(minelp_skin.base) do
-        for _, base_color in pairs(minelp_skin.base_color) do
+    for _, base in pairs(minelp.skin.base) do
+        for _, base_color in pairs(minelp.skin.base_color) do
             local id = base:gsub(".png$", "") .. color_to_string(base_color):gsub("#", "")
             minetest.register_node("minelp:" .. id, {
                 drawtype = "mesh",
@@ -632,14 +633,14 @@ local function init()
 
             fields = function(player, data, fields)
                 i3.set_tab(player, "inventory")
-                minelp_skin.show_formspec(player)
+                minelp.skin.show_formspec(player)
             end,
         })
     end
     if minetest.global_exists("sfinv_buttons") then
         sfinv_buttons.register_button("minelp_skin", {
             title = S("Edit Skin"),
-            action = function(player) minelp_skin.show_formspec(player) end,
+            action = function(player) minelp.skin.show_formspec(player) end,
             tooltip = S("Open skin configuration screen."),
             image = "minelp_skin_button.png",
         })
@@ -649,7 +650,7 @@ local function init()
             get = function(self, player, context) return "" end,
             on_enter = function(self, player, context)
                 sfinv.contexts[player:get_player_name()].page = sfinv.get_homepage_name(player)
-                minelp_skin.show_formspec(player)
+                minelp.skin.show_formspec(player)
             end
         })
     end
@@ -659,19 +660,19 @@ local function init()
             image = "minelp_skin_button.png",
             tooltip = S("Edit Skin"),
             action = function(player)
-                minelp_skin.show_formspec(player)
+                minelp.skin.show_formspec(player)
             end,
         })
     end
     if minetest.global_exists("armor") and armor.get_player_skin then
         armor.get_player_skin = function(armor, name)
-            return minelp_skin.compile_skin(minelp_skin.player_skins[minetest.get_player_by_name(name)])
+            return minelp.skin.compile_skin(minelp.skin.player_skins[minetest.get_player_by_name(name)])
         end
     end
     if minetest.global_exists("inventory_plus") then
         minetest.register_on_player_receive_fields(function(player, formname, fields)
-            if formname == "" and fields.minelp_skin then
-                minelp_skin.show_formspec(player)
+            if formname == "" and fields.minelp.skin then
+                minelp.skin.show_formspec(player)
                 return true
             end
             return false
@@ -686,7 +687,7 @@ local function init()
             sequence         = 100,
             on_button_click  = function(state)
                 local player = minetest.get_player_by_name(state.location.rootState.location.player)
-                minelp_skin.show_formspec(player)
+                minelp.skin.show_formspec(player)
             end,
             is_visible_func  = function(state) return true end,
         })
